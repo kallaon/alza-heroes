@@ -12,13 +12,10 @@ import { ToastContainerComponent } from './components/toast-container-component/
     AppComponent,
     HeroesComponent,
     DashboardComponent,
-    ToastContainerComponent
+    ToastContainerComponent,
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule
-  ],
+  imports: [BrowserModule, AppRoutingModule],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}
