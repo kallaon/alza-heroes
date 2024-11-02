@@ -1,0 +1,41 @@
+<h2 class="text-center mb-3">Top Heroes</h2>
+
+<div class="row">
+  @for (hero of heroes; track hero) {
+  <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+    <div class="card text-center">
+      <a routerLink="/detail/{{ hero.id }}">
+        <svg
+          class="bd-placeholder-img card-img"
+          role="img"
+          width="100%"
+          height="10rem"
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="xMidYMid slice"
+          focusable="false"
+        >
+          <title>{{ hero.name }}</title>
+          <rect width="100%" height="100%" fill="#868e96"></rect>
+          <text
+            x="50%"
+            y="50%"
+            fill="white"
+            dy=".3em"
+            text-anchor="middle"
+            font-size="1.25rem"
+          >
+            {{ hero.name }}
+          </text>
+        </svg>
+      </a>
+    </div>
+  </div>
+  } @empty {
+  <div class="col">
+    <div class="alert alert-warning">
+      <h4 class="alert-heading">No Heroes Found</h4>
+      <p>There are no heroes to display.</p>
+    </div>
+  </div>
+  }
+</div>

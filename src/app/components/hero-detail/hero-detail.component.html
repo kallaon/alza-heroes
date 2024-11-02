@@ -1,0 +1,53 @@
+<ng-container *ngIf="hero; else heroUndefinedTemplate">
+  <h2 class="mb-3">{{ hero.name }} Details</h2>
+
+  <!-- ID Display with Label Aligned with "Hero Name" Label -->
+  <div class="row mb-3 align-items-center">
+    <label class="col-form-label col-sm-2">ID:</label>
+    <div class="col-sm-3">
+      <p class="form-control-plaintext">{{ hero.id }}</p>
+    </div>
+  </div>
+
+  <!-- Hero Name Form Group with Label on the Left -->
+  <div class="row mb-3 align-items-center">
+    <label class="col-form-label col-sm-2" for="heroName">Hero Name:</label>
+    <div class="col-sm-3">
+      <input
+        class="form-control"
+        id="heroName"
+        [(ngModel)]="hero.name"
+        #heroName="ngModel"
+        placeholder="Enter hero name"
+        minlength="3"
+        required
+      />
+      <div class="text-danger" *ngIf="heroName.invalid && heroName.touched">
+        <small *ngIf="heroName.errors?.['required']"
+          >Hero name is required.</small
+        >
+        <small *ngIf="heroName.errors?.['minlength']"
+          >Hero name must be at least 3 characters.</small
+        >
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="d-flex gap-2">
+    <button class="btn btn-secondary" type="button" (click)="onGoBack()">
+      Back
+    </button>
+    <button class="btn btn-primary" type="button" (click)="onSave()">
+      Save
+    </button>
+  </div>
+</ng-container>
+
+<ng-template #heroUndefinedTemplate="">
+  <!-- Template for when hero is not defined -->
+  <div class="alert alert-warning">
+    <h4 class="alert-heading">Hero Not Found</h4>
+    <p>The hero you are looking for does not exist. Please try another hero.</p>
+  </div>
+</ng-template>
