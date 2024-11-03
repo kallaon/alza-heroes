@@ -10,18 +10,15 @@ import { ToastService } from '../toast-service/toast.service';
 })
 export class HeroService implements OnDestroy {
   private _heroesSubject = new BehaviorSubject<Hero[]>([
-    { id: 1, name: 'Windstorm' },
-    { id: 2, name: 'Bombasto' },
-    { id: 3, name: 'Magneta' },
-    { id: 4, name: 'Tornado' },
+    // { id: 1, name: 'Windstorm' },
+    // { id: 2, name: 'Bombasto' },
+    // { id: 3, name: 'Magneta' },
+    // { id: 4, name: 'Tornado' },
   ]);
-  private subscription: Subscription = new Subscription(); // Manage subscriptions for cleanup
+  heroes$: Observable<Hero[]> = this._heroesSubject.asObservable();
+  private _subscription: Subscription = new Subscription();
 
-  heroes$: Observable<Hero[]> = this._heroesSubject.asObservable(); // Public observable for components to subscribe
-
-  constructor(private readonly _toastService: ToastService) {
-    console.log('HeroService constructor');
-  }
+  constructor(private readonly _toastService: ToastService) {}
 
   /**
    * Retrieves the list of all heroes as an Observable.
@@ -38,7 +35,7 @@ export class HeroService implements OnDestroy {
    */
   getHero(id: number): Observable<Hero | undefined> {
     if (!this._isValidId(id)) {
-      console.error('Invalid ID');
+      this._toastService.showToast('Invalid ID', ToastType.Error);
       return new BehaviorSubject<Hero | undefined>(undefined).asObservable();
     }
     return this.heroes$.pipe(
@@ -52,11 +49,14 @@ export class HeroService implements OnDestroy {
    */
   addHero(hero: Hero): void {
     if (!this._isValidHero(hero)) {
-      console.error('Invalid hero object');
+      this._toastService.showToast('Invalid hero object', ToastType.Error);
       return;
     }
     if (this._heroesSubject.value.some((h) => h.id === hero.id)) {
-      console.error('Hero with this ID already exists');
+      this._toastService.showToast(
+        'Hero with this ID already exists',
+        ToastType.Error
+      );
       return;
     }
 
@@ -71,7 +71,7 @@ export class HeroService implements OnDestroy {
    */
   updateHero(updatedHero: Hero): void {
     if (!this._isValidHero(updatedHero)) {
-      console.error('Invalid hero object');
+      this._toastService.showToast('Invalid hero object', ToastType.Error);
       return;
     }
 
@@ -79,7 +79,7 @@ export class HeroService implements OnDestroy {
     const index = heroes.findIndex((hero) => hero.id === updatedHero.id);
 
     if (index === -1) {
-      console.error('Hero not found');
+      this._toastService.showToast('Hero not found', ToastType.Error);
       return;
     }
 
@@ -98,7 +98,7 @@ export class HeroService implements OnDestroy {
    */
   deleteHero(id: number): void {
     if (!this._isValidId(id)) {
-      console.error('Invalid ID');
+      this._toastService.showToast('Invalid ID', ToastType.Error);
       return;
     }
 
@@ -107,7 +107,7 @@ export class HeroService implements OnDestroy {
     const updatedHeroes = heroes.filter((hero) => hero.id !== id);
 
     if (updatedHeroes.length === initialLength) {
-      console.error('Hero not found');
+      this._toastService.showToast('Hero not found', ToastType.Error);
       return;
     }
 
@@ -122,7 +122,7 @@ export class HeroService implements OnDestroy {
    * Cleans up resources on destroy.
    */
   ngOnDestroy(): void {
-    this.subscription.unsubscribe(); // Unsubscribe to prevent memory leaks
+    this._subscription.unsubscribe(); // Unsubscribe to prevent memory leaks
   }
 
   /**

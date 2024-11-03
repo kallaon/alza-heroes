@@ -1,16 +1,31 @@
-<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;">
-    <div class="toast show align-items-center text-white" role="alert" aria-atomic="true" aria-live="assertive" [ngClass]="{
-        'bg-success': toast.type === 'success',
-        'bg-danger': toast.type === 'error',
-        'bg-warning': toast.type === 'warning',
-        'bg-info': toast.type === 'info'
-      }" *ngFor="let toast of toasts">
-      <div class="d-flex">
-        <div class="toast-body">
-          {{ toast.message }}
-        </div>
-        <button class="btn-close btn-close-white me-2 m-auto" type="button" aria-label="Close" (click)="removeToast(toast.id)"></button>
+<div
+  class="toast-container position-fixed top-0 end-0 p-3"
+  style="z-index: 1100"
+>
+  @for (toast of toasts; track toast) {
+  <div
+    class="toast show align-items-center text-white"
+    role="alert"
+    aria-atomic="true"
+    aria-live="assertive"
+    [ngClass]="{
+      'bg-success': toast.type === 'success',
+      'bg-danger': toast.type === 'error',
+      'bg-warning': toast.type === 'warning',
+      'bg-info': toast.type === 'info'
+    }"
+  >
+    <div class="d-flex">
+      <div class="toast-body">
+        {{ toast.message }}
       </div>
+      <button
+        class="btn-close btn-close-white me-2 m-auto"
+        type="button"
+        aria-label="Close"
+        (click)="removeToast(toast.id)"
+      ></button>
     </div>
   </div>
-    
+  }
+</div>

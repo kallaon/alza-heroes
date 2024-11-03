@@ -1,1 +1,57 @@
-<p>heroes works!</p>
+<h2 class="text-center mb-3">My heroes</h2>
+<div class="mb-4">
+  <h5>Create New Hero</h5>
+  <div class="input-group">
+    <input
+      type="text"
+      class="form-control"
+      placeholder="Enter hero name"
+      [(ngModel)]="newHeroName"
+      aria-label="New Hero Name"
+      #heroName="ngModel"
+      minlength="3"
+      maxlength="20"
+      required
+    />
+    <button
+      class="btn btn-primary"
+      [disabled]="heroName.invalid"
+      type="button"
+      (click)="addHero(heroName)"
+    >
+      Create New Hero
+    </button>
+  </div>
+  <div class="text-danger" *ngIf="heroName.invalid && heroName.touched">
+    @if (heroName.errors?.['required']) {
+    <small>Hero name is required.</small>
+    } @else if (heroName.errors?.['minlength']) {
+    <small>Hero name must be at least 3 characters.</small>
+    } @else if (heroName.errors?.['maxlength']) {
+    <small>Hero name must be at most 20 characters.</small>
+    }
+  </div>
+</div>
+
+<hr />
+
+<div>
+  <h5>Heroes</h5>
+  @for (hero of heroes; track hero) {
+  <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-2">
+    <button
+      type="button"
+      class="btn btn-secondary w-100 d-flex justify-content-between align-items-center"
+      (click)="goToHeroDetail(hero.id)"
+    >
+      <span appHeroName="{{ hero.name }}"></span>
+      <span class="badge bg-dark">{{ hero.id }}</span>
+    </button>
+  </div>
+  } @empty {
+  <div class="alert alert-warning">
+    <h4 class="alert-heading">No Heroes Found</h4>
+    <p>There are no heroes to display.</p>
+  </div>
+  }
+</div>

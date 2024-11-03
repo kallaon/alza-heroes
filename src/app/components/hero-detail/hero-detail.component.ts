@@ -1,22 +1,29 @@
+import { Location } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription, take } from 'rxjs';
 import { Hero } from '../../models/hero.model';
+import { ToastType } from '../../models/toas.model';
 import { HeroService } from '../../services/hero-service/hero.service';
+import { ToastService } from '../../services/toast-service/toast.service';
 
 @Component({
   selector: 'app-hero-detail',
   templateUrl: './hero-detail.component.html',
-  styleUrls: ['./hero-detail.component.scss'], // Fixed typo in 'styleUrls'
+  styleUrls: ['./hero-detail.component.scss'],
 })
 export class HeroDetailComponent implements OnInit, OnDestroy {
   hero: Hero | undefined;
+  editedHeroName: string = '';
+
   private subscription: Subscription = new Subscription();
 
   constructor(
     private readonly _heroService: HeroService,
     private readonly _route: ActivatedRoute,
-    private readonly _router: Router
+    private readonly _router: Router,
+    private readonly _location: Location,
+    private readonly _toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -32,7 +39,7 @@ export class HeroDetailComponent implements OnInit, OnDestroy {
    * This method uses the Router to navigate to the homepage.
    */
   onGoBack(): void {
-    this._router.navigate(['/']);
+    this._location.back();
   }
 
   /**
@@ -41,6 +48,7 @@ export class HeroDetailComponent implements OnInit, OnDestroy {
    */
   onSave(): void {
     if (this.hero) {
+      this.hero.name = this.editedHeroName.trim();
       this._heroService.updateHero(this.hero);
     }
   }
@@ -73,12 +81,16 @@ export class HeroDetailComponent implements OnInit, OnDestroy {
         next: (hero) => {
           if (hero) {
             this.hero = hero;
+            this.editedHeroName = hero.name; // Initialize editedHeroName
           } else {
-            console.error('Hero not found');
             this._router.navigate(['/']);
           }
         },
-        error: (err) => console.error('Failed to fetch hero:', err),
+        error: (err) =>
+          this._toastService.showToast(
+            err.message || 'Failed to fetch heroes',
+            ToastType.Error
+          ),
       });
   }
 }
