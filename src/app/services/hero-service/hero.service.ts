@@ -9,12 +9,7 @@ import { ToastService } from '../toast-service/toast.service';
   providedIn: 'root',
 })
 export class HeroService implements OnDestroy {
-  private _heroesSubject = new BehaviorSubject<Hero[]>([
-    // { id: 1, name: 'Windstorm' },
-    // { id: 2, name: 'Bombasto' },
-    // { id: 3, name: 'Magneta' },
-    // { id: 4, name: 'Tornado' },
-  ]);
+  private _heroesSubject = new BehaviorSubject<Hero[]>([]);
   heroes$: Observable<Hero[]> = this._heroesSubject.asObservable();
   private _subscription: Subscription = new Subscription();
 
