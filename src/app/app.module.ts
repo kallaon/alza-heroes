@@ -15,7 +15,7 @@ import { ToastContainerComponent } from './components/toast-container-component/
     ToastContainerComponent,
   ],
   imports: [BrowserModule, AppRoutingModule],
-  providers: [],
+  // providers: [HeroService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

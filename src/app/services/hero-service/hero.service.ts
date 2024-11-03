@@ -1,40 +1,49 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Hero } from '../../models/hero.model';
 import { ToastType } from '../../models/toas.model';
 import { ToastService } from '../toast-service/toast.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
-export class HeroService {
-  private _heroes: Hero[] = [
+export class HeroService implements OnDestroy {
+  private _heroesSubject = new BehaviorSubject<Hero[]>([
     { id: 1, name: 'Windstorm' },
     { id: 2, name: 'Bombasto' },
     { id: 3, name: 'Magneta' },
-    { id: 4, name: 'Tornado' }
-  ];
+    { id: 4, name: 'Tornado' },
+  ]);
+  private subscription: Subscription = new Subscription(); // Manage subscriptions for cleanup
 
-  constructor(private readonly _toastService: ToastService) { }
+  heroes$: Observable<Hero[]> = this._heroesSubject.asObservable(); // Public observable for components to subscribe
 
-  /**
-   * Retrieves the list of all heroes.
-   * @returns An array of Hero objects.
-   */
-  getHeroes(): Hero[] {
-    return this._heroes;
+  constructor(private readonly _toastService: ToastService) {
+    console.log('HeroService constructor');
   }
 
   /**
-   * Retrieves a hero by its ID.
-   * @param id - The ID of the hero to retrieve.
-   * @returns The Hero object if found, otherwise undefined.
+   * Retrieves the list of all heroes as an Observable.
+   * @returns An Observable of Hero objects array.
    */
-  getHero(id: number): Hero | undefined {
+  getHeroes(): Observable<Hero[]> {
+    return this.heroes$;
+  }
+
+  /**
+   * Retrieves a hero by its ID as an Observable.
+   * @param id - The ID of the hero to retrieve.
+   * @returns An Observable of the Hero object if found, otherwise undefined.
+   */
+  getHero(id: number): Observable<Hero | undefined> {
     if (!this._isValidId(id)) {
       console.error('Invalid ID');
-      return undefined;
+      return new BehaviorSubject<Hero | undefined>(undefined).asObservable();
     }
-    return this._heroes.find(hero => hero.id === id);
+    return this.heroes$.pipe(
+      map((heroes) => heroes.find((hero) => hero.id === id))
+    );
   }
 
   /**
@@ -46,13 +55,14 @@ export class HeroService {
       console.error('Invalid hero object');
       return;
     }
-    if (this._heroes.some(h => h.id === hero.id)) {
+    if (this._heroesSubject.value.some((h) => h.id === hero.id)) {
       console.error('Hero with this ID already exists');
       return;
     }
-    this._heroes.push(hero);
+
+    const updatedHeroes = [...this._heroesSubject.value, hero];
+    this._heroesSubject.next(updatedHeroes);
     this._toastService.showToast('Hero added successfully', ToastType.Success);
-    console.log('Heroes', this.getHeroes());
   }
 
   /**
@@ -64,14 +74,22 @@ export class HeroService {
       console.error('Invalid hero object');
       return;
     }
-    const index = this._heroes.findIndex(hero => hero.id === updatedHero.id);
+
+    const heroes = this._heroesSubject.value;
+    const index = heroes.findIndex((hero) => hero.id === updatedHero.id);
+
     if (index === -1) {
       console.error('Hero not found');
       return;
     }
-    this._heroes[index] = updatedHero;
-    this._toastService.showToast('Hero updated successfully', ToastType.Success);
-    console.log('Heroes', this.getHeroes());
+
+    const updatedHeroes = [...heroes];
+    updatedHeroes[index] = updatedHero;
+    this._heroesSubject.next(updatedHeroes);
+    this._toastService.showToast(
+      'Hero updated successfully',
+      ToastType.Success
+    );
   }
 
   /**
@@ -83,11 +101,28 @@ export class HeroService {
       console.error('Invalid ID');
       return;
     }
-    const initialLength = this._heroes.length;
-    this._heroes = this._heroes.filter(hero => hero.id !== id);
-    if (this._heroes.length === initialLength) {
+
+    const heroes = this._heroesSubject.value;
+    const initialLength = heroes.length;
+    const updatedHeroes = heroes.filter((hero) => hero.id !== id);
+
+    if (updatedHeroes.length === initialLength) {
       console.error('Hero not found');
+      return;
     }
+
+    this._heroesSubject.next(updatedHeroes);
+    this._toastService.showToast(
+      'Hero deleted successfully',
+      ToastType.Success
+    );
+  }
+
+  /**
+   * Cleans up resources on destroy.
+   */
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe(); // Unsubscribe to prevent memory leaks
   }
 
   /**
@@ -102,7 +137,6 @@ export class HeroService {
   /**
    * Checks if the given hero object is valid.
    * A hero is considered valid if it has a valid ID and a non-empty name.
-   *
    * @param hero - The hero object to validate.
    * @returns `true` if the hero is valid, `false` otherwise.
    */
