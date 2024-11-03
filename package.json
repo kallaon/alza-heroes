@@ -10,7 +10,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "deploy": "ng build --output-path=dist/alza --base-href=/alza-heroes/ && npx angular-cli-ghpages --dir=dist/alza/browser"
   },
   "private": true,
   "dependencies": {
